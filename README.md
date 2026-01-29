@@ -62,7 +62,7 @@ docker run -p 8080:80 ghcr.io/<owner>/<repo>:latest
    ssh-keygen -t ed25519 -C "github-actions-deploy"
    ```
    按提示操作，建议不设置密码以便自动化部署。
-
+ 
 2. **将公钥添加到服务器**：
    ```bash
    # 复制公钥内容
