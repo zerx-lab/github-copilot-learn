@@ -59,14 +59,14 @@ docker run -p 8080:80 ghcr.io/<owner>/<repo>:latest
 
 1. **在本地生成 SSH 密钥对**（如果没有的话）：
    ```bash
-   ssh-keygen -t ed25519 -C "github-actions-deploy"
+   ssh-keygen -t github_actions -C "github-actions-deploy"
    ```
    按提示操作，建议不设置密码以便自动化部署。
  
 2. **将公钥添加到服务器**：
    ```bash
    # 复制公钥内容
-   cat ~/.ssh/id_ed25519.pub
+   cat ~/.ssh/id_github_actions.pub
 
    # 登录服务器，将公钥添加到 authorized_keys
    ssh zero@40.81.208.36
@@ -75,7 +75,7 @@ docker run -p 8080:80 ghcr.io/<owner>/<repo>:latest
 
    或使用 ssh-copy-id：
    ```bash
-   ssh-copy-id -i ~/.ssh/id_ed25519.pub zero@40.81.208.36
+   ssh-copy-id -i ~/.ssh/id_github_actions.pub zero@40.81.208.36
    ```
 
 3. **将私钥添加到 GitHub Secrets**：
@@ -85,7 +85,7 @@ docker run -p 8080:80 ghcr.io/<owner>/<repo>:latest
    - Value: 粘贴私钥内容（包括 `-----BEGIN` 和 `-----END` 行）
    ```bash
    # 查看私钥内容
-   cat ~/.ssh/id_ed25519
+   cat ~/.ssh/id_github_actions
    ```
 
 4. **确保服务器已安装 Docker**：
