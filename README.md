@@ -72,7 +72,7 @@ docker run -p 8080:80 ghcr.io/<owner>/<repo>:latest
    ssh zero@40.81.208.36
    echo "公钥内容" >> ~/.ssh/authorized_keys
    ```
-
+ 
    或使用 ssh-copy-id：
    ```bash
    ssh-copy-id -i ~/.ssh/id_ed25519.pub zero@40.81.208.36
