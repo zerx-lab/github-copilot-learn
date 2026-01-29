@@ -1,45 +1,56 @@
-name: Build and Push Docker Image
+name: Build and Push Docker Image   # 工作流名称，在 GitHub Actions 页面会显示这个名字
 
+# 触发条件：什么时候要执行这个流水线
 on:
-  push:
-    branches:
-      - main
+  push:                             # 当有 push 操作时触发
+    branches:                       # 只在以下分支发生 push 时触发
+      - main                        # 目前只针对 main 分支
 
+# 全局环境变量，供整个 workflow 使用
 env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  REGISTRY: ghcr.io                 # 使用 GitHub 的官方容器镜像仓库 (GitHub Container Registry)
+  IMAGE_NAME: ${{ github.repository }}   # 镜像名称 = 用户名/仓库名，例如 zhiwei123/myproject
 
+# 工作（可以有多个 jobs，这里只有一个）
 jobs:
+  # 这个 job 叫 build-and-push（名字随意，但建议有意义）
   build-and-push:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest          # 使用 GitHub 提供的最新 Ubuntu 虚拟机来执行
+
+    # 需要的权限声明（非常重要，尤其是推送到 ghcr.io 时）
     permissions:
-      contents: read
-      packages: write
+      contents: read                # 允许读取仓库代码
+      packages: write               # 允许向 GitHub Packages / ghcr.io 写入（推送）镜像
 
+    # 这个 job 要执行的步骤（按顺序执行）
     steps:
+      # 步骤1：把仓库代码检出到 runner 的工作目录
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4     # 使用官方 checkout 动作，v4 是目前推荐版本
 
+      # 步骤2：登录到 GitHub Container Registry (ghcr.io)
       - name: Log in to Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ${{ env.REGISTRY }}          # ghcr.io
+          username: ${{ github.actor }}          # 触发 workflow 的 GitHub 用户名
+          password: ${{ secrets.GITHUB_TOKEN }}  # GitHub 自动提供的 token，有写 packages 权限
 
+      # 步骤3：自动生成镜像的标签（tags）和元数据（labels）
       - name: Extract metadata (tags, labels)
-        id: meta
+        id: meta                        # 给这个步骤起个别名 meta，后面可以引用它的输出
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=sha,prefix=
-            type=raw,value=latest,enable={{is_default_branch}}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}   # 完整镜像名，例如：ghcr.io/zhiwei123/myproject
+          tags: |                                             # 多行标签策略
+            type=sha,prefix=                          # 提交的短 SHA，例如：ghcr.io/xxx/myproject:abcdef1
+            type=raw,value=latest,enable={{is_default_branch}}   # 只有 main 分支推送时才打 latest 标签
 
+      # 步骤4：真正执行 docker build + docker push
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          context: .                        # 构建上下文（使用仓库根目录）
+          push: true                        # 构建完成后直接推送（需要前面已登录）
+          tags: ${{ steps.meta.outputs.tags }}     # 使用第3步生成的标签列表
+          labels: ${{ steps.meta.outputs.labels }} # 使用第3步生成的镜像元数据（LABEL 指令）
