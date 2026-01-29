@@ -2,6 +2,8 @@
 
 一个学习 GitHub Actions 的练习项目，演示如何在提交代码到 main 分支时自动构建 Docker 镜像并推送到 GitHub Packages。
 
+start test
+
 ## 项目结构
 
 ```
