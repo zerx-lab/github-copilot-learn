@@ -1,4 +1,3 @@
-++ Dockerfile
 FROM nginx:alpine
 
 # remove default nginx website
