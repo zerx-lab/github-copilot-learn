@@ -2,11 +2,10 @@ name: 自动分配 Issue 给 Copilot
 
 on:
   issues:
-    types: [labeled]
+    types: [opened]
 
 jobs:
   assign-to-copilot:
-    if: github.event.label.name == 'copilot'
     runs-on: ubuntu-latest
 
     permissions:
