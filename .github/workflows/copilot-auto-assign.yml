@@ -14,59 +14,19 @@ jobs:
       contents: read
     
     steps:
-      - name: 分配 Issue 给 Copilot
+      - name: 触发 Copilot 处理 Issue
         uses: actions/github-script@v7
         with:
           script: |
             const { owner, repo } = context.repo;
             const issue_number = context.issue.number;
+            const issueBody = context.payload.issue.body || '';
             
-            try {
-              // 分配给 Copilot
-              await github.rest.issues.addAssignees({
-                owner,
-                repo,
-                issue_number,
-                assignees: ['Copilot']
-              });
-              
-              // 添加工作状态标签
-              await github.rest.issues.addLabels({
-                owner,
-                repo,
-                issue_number,
-                labels: ['copilot-working']
-              });
-              
-              // 添加确认评论
-              await github.rest.issues.createComment({
-                owner,
-                repo,
-                issue_number,
-                body: `🤖 **GitHub Copilot 已被分配处理此 Issue**
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number,
+              body: `@copilot 请根据以上 Issue 描述实现需求。`
+            });
             
-            Copilot 将会：
-            - 分析 Issue 需求
-            - 按照仓库规范编写代码
-            - 运行测试和质量检查
-            - 创建 Pull Request
-            
-            📊 [查看 Copilot 工作进度](https://github.com/${owner}/${repo}/copilot)`
-              });
-              
-              console.log('✅ 成功分配 Issue 给 Copilot');
-            } catch (error) {
-              console.error('❌ 分配失败:', error.message);
-              
-              // 添加错误提示评论
-              await github.rest.issues.createComment({
-                owner,
-                repo,
-                issue_number,
-                body: `⚠️ **自动分配给 Copilot 失败**
-            
-            错误信息: ${error.message}
-            
-            请手动分配或检查仓库是否已启用 GitHub Copilot Coding Agent。`
-              });
-            }
+            console.log('✅ 已通过 @copilot 触发 Coding Agent');
