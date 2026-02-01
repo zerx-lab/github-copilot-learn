@@ -18,7 +18,7 @@ jobs:
     steps:
       - name: 获取 Copilot Bot ID 并分配 Issue
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.COPILOT_PAT }}
         run: |
           # 1. 检查 Copilot 是否启用并获取 Bot ID
           echo "正在检查 Copilot coding agent 是否启用..."
