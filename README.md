@@ -1,19 +1,20 @@
 # GitHub Actions + Docker + Nginx Demo
 
-一个学习 GitHub Actions 的练习项目，演示如何在提交代码到 main 分支时自动构建 Docker 镜像并推送到 GitHub Packages。
-
-start test
+一个学习 GitHub Actions 的练习项目，演示如何：
+1. 在提交代码到 main 分支时自动构建 Docker 镜像并推送到 GitHub Packages
+2. 自动将带有 `copilot` 标签的 Issue 分配给 GitHub Copilot coding agent
 
 ## 项目结构
 
 ```
 .
 ├── .github/workflows/
-│   └── docker-publish.yml  # GitHub Actions 工作流
+│   ├── copilot-auto-assign.yml  # Copilot 自动分配工作流
+│   └── docker-publish.yml       # Docker 构建和部署工作流
 ├── public/
-│   └── index.html          # 前端页面
-├── Dockerfile              # Docker 构建文件
-├── nginx.conf              # Nginx 配置
+│   └── index.html               # 前端页面
+├── Dockerfile                   # Docker 构建文件
+├── nginx.conf                   # Nginx 配置
 └── README.md
 ```
 
@@ -50,6 +51,33 @@ docker run -p 8080:80 ghcr.io/<owner>/<repo>:latest
 仓库需要启用以下权限（默认已启用）：
 - **Actions** - 读写权限
 - **Packages** - 读写权限
+
+## Copilot 自动分配功能
+
+本项目配置了 GitHub Actions 工作流，可以自动将 Issue 分配给 GitHub Copilot coding agent。
+
+### 使用方法
+
+1. **创建或打开一个 Issue**
+2. **添加标签 `copilot`** 到该 Issue
+3. GitHub Actions 会自动触发，将该 Issue 分配给 Copilot coding agent
+4. Copilot 会自动开始处理该 Issue
+
+### 配置要求
+
+- 需要在仓库设置中启用 GitHub Copilot coding agent
+- 需要配置 Personal Access Token (PAT) 作为仓库 Secret：
+  - 进入 GitHub 仓库 → Settings → Secrets and variables → Actions
+  - 点击 "New repository secret"
+  - Name: `COPILOT_PAT`
+  - Value: 具有 `repo` 权限的 Personal Access Token
+
+### 工作流程
+
+1. 当 Issue 被添加 `copilot` 标签时，工作流自动触发
+2. 通过 GraphQL API 获取 Copilot bot ID 和仓库信息
+3. 使用 GraphQL mutation 将 Issue 分配给 Copilot coding agent
+4. Copilot 自动创建分支并开始处理 Issue
 
 ## 服务器部署配置
 
